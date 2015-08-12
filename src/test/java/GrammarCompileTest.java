@@ -13,7 +13,6 @@ public class GrammarCompileTest {
 
 	@Test
 	public void test() {
-		//fail("Not yet implemented");
 		Grammar g = new Grammar();
 		g.addRule(new Rule("greet", new RequiredWord(new RuleReference("greetWord"), new RequiredWord(new RuleReference("name")))));
 		g.addRule(new Rule("name", new AlternateSimpleWordList(new String[]{ "computer", "world", "paul", "peter", "sue", "amanda"})));
