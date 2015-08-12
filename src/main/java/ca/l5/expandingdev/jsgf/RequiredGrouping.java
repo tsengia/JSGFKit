@@ -1,8 +1,8 @@
 package ca.l5.expandingdev.jsgf;
 
-public class RequiredWord implements Word {
-	private Word w;
-	private Word a;
+public class RequiredGrouping implements Expansion {
+	private Expansion w;
+	private Expansion a;
 	private boolean onlyinside = true;
 	
 	public String getString() {
@@ -14,11 +14,11 @@ public class RequiredWord implements Word {
 		}
 	}
 	
-	public RequiredWord(Word rw) {
+	public RequiredGrouping(Expansion rw) {
 		w = rw;
 	}
 
-	public RequiredWord(Word inside, Word after) {
+	public RequiredGrouping(Expansion inside, Expansion after) {
 		w = inside;
 		a = after;
 		onlyinside = false;

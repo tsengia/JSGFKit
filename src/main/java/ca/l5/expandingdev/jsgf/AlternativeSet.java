@@ -1,14 +1,14 @@
 package ca.l5.expandingdev.jsgf;
 
-public class AlternateWord implements Word {
-	private Word first;
-	private Word second;
+public class AlternativeSet implements Expansion {
+	private Expansion first;
+	private Expansion second;
 	
 	public String getString() {
 		return first.getString() + " | " + second.getString();
 	}
 	
-	public AlternateWord(Word f, Word s) {
+	public AlternativeSet(Expansion f, Expansion s) {
 		first = f;
 		second = s;
 	}

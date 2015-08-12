@@ -1,8 +1,8 @@
 package ca.l5.expandingdev.jsgf;
 
-public class OptionalWord implements Word {
-	private Word w;
-	private Word a;
+public class OptionalGrouping implements Expansion {
+	private Expansion w;
+	private Expansion a;
 	private boolean onlyinside = true;
 		
 	public String getString() {
@@ -15,11 +15,11 @@ public class OptionalWord implements Word {
 	}
 	
 	
-	public OptionalWord(Word ow) {
+	public OptionalGrouping(Expansion ow) {
 		w = ow;
 	}
 	
-	public OptionalWord(Word ow, Word after) {
+	public OptionalGrouping(Expansion ow, Expansion after) {
 		w = ow;
 		a = after;
 		onlyinside = false;

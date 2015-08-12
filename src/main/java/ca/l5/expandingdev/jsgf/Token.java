@@ -1,14 +1,17 @@
 package ca.l5.expandingdev.jsgf;
 
-public class SimpleWord implements Word {
-	
+public class Token implements Expansion {
 	private String text;
 	
 	public String getString() { 
 		return text; 
 	}
 	
-	public SimpleWord(String s) {
+	public Token() {
+		
+	}
+	
+	public Token(String s) {
 		text = s;
 	}
 }
