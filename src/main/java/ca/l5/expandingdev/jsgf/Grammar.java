@@ -19,6 +19,11 @@ public class Grammar {
 		rules.add(r);
 	}
 	
+	public Grammar() {
+		name = "default";
+		rules = new ArrayList<Rule>();
+	}
+	
 	public Grammar(String n)  {
 		name = n;
 		rules = new ArrayList<Rule>();
