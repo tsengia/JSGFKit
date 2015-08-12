@@ -5,10 +5,4 @@ Useful for adapting or changing JSGF grammars from within a program, for example
 
 JSGF Documentation: http://www.w3.org/TR/jsgf/
 
-# Usage
-
-First, make sure to include the .jar in your build path.
-Next, create a Grammar object.
-```java
-Grammar g = new Grammar();
-```
+See the [wiki] (https://github.com/ExpandingDev/JSGFGen/wiki) for examples on how to use.
