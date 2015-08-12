@@ -1,27 +1,18 @@
 package ca.l5.expandingdev.jsgf;
 
 public class OptionalGrouping implements Expansion {
-	private Expansion w;
-	private Expansion a;
-	private boolean onlyinside = true;
+	private Expansion[] exp;
 		
 	public String getString() {
-		if(onlyinside) {
-			return "[" + w.getString() + "]"; 
+		String s = "[";
+		for(Expansion e : exp) {
+			s = s.concat(e.getString());
 		}
-		else {
-			return "[" + w.getString() + "] " + a.getString();
-		}
+		s.concat("]");
+		return s;
 	}
 	
-	
-	public OptionalGrouping(Expansion ow) {
-		w = ow;
-	}
-	
-	public OptionalGrouping(Expansion ow, Expansion after) {
-		w = ow;
-		a = after;
-		onlyinside = false;
+	public OptionalGrouping(Expansion... e) {
+		exp = e;
 	}
 }
