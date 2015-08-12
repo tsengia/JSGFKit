@@ -22,6 +22,10 @@ public class Grammar {
 		return f;
 	}
 	
+	public String toString() {
+		return compileGrammar();
+	}
+	
 	public void addRule(Rule r) {
 		rules.add(r);
 	}

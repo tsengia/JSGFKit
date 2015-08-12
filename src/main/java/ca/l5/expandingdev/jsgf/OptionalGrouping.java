@@ -8,7 +8,7 @@ public class OptionalGrouping implements Expansion {
 		for(Expansion e : exp) {
 			s = s.concat(e.getString());
 		}
-		s.concat("]");
+		s = s.concat("]");
 		return s;
 	}
 	
