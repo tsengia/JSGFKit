@@ -3,7 +3,7 @@ package ca.l5.expandingdev.jsgf;
 public class Rule {
 	public String name;
 	public Expansion[] expansions;
-	public boolean isvisable = true;
+	public boolean isvisible = true;
 	
 	public String getRuleString() {
 		String s = "";
@@ -19,17 +19,17 @@ public class Rule {
 	}
 	
 	public void setPrivate() {
-		isvisable = false;
+		isvisible = false;
 	}
 	
 	public void setPublic() {
-		isvisable = true;
+		isvisible = true;
 	}
 	
-	public Rule(String n, boolean visable, Expansion... exp) {
+	public Rule(String n, boolean visible, Expansion... exp) {
 		name = n;
 		expansions = exp;
-		isvisable = visable;
+		isvisible = visible;
 	}
 	
 	public Rule(String n, Expansion... exp) {
