@@ -8,6 +8,14 @@ public class Token implements Expansion {
 		return tag;
 	}
 	
+	public String getText() {
+		return text;
+	}
+	
+	public void setTag(String s) {
+		tag = s;
+	}
+	
 	public String getString() {
 		if(tag.equals("")) {
 			return text;
@@ -24,5 +32,11 @@ public class Token implements Expansion {
 	
 	public Token(String s) {
 		text = s;
+		tag = "";
+	}
+	
+	public Token(String s, String g) {
+		text = s;
+		tag = g;
 	}
 }
