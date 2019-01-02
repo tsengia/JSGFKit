@@ -8,12 +8,18 @@ public class Token implements Expansion {
 		return tag;
 	}
 	
-	public String getString() { 
-		return text; 
+	public String getString() {
+		if(tag.equals("")) {
+			return text;
+		}
+		else {
+			return text + " {" + tag + "}";
+		}
 	}
 	
 	public Token() {
-		
+		text = "";
+		tag = ""
 	}
 	
 	public Token(String s) {
