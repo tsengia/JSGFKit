@@ -10,7 +10,8 @@ public class Rule {
 		for(int i = 0; i < expansions.length; i++) {
 			s = s.concat(expansions[i].getString());
 		}
-		if(isvisable) { 
+
+		if(isvisible) {
 			return "public <" + name + "> = " + s + ";";
 		}
 		else {

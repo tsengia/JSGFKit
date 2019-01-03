@@ -27,7 +27,7 @@ public class Token implements Expansion {
 	
 	public Token() {
 		text = "";
-		tag = ""
+		tag = "";
 	}
 	
 	public Token(String s) {
