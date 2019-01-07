@@ -1,5 +1,9 @@
 package ca.l5.expandingdev.jsgf;
 
 public interface Expansion {
-public String getString();
+    String getString();
+
+    boolean hasChildren();
+
+    boolean hasUnparsedChildren();
 }
