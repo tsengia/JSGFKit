@@ -26,6 +26,205 @@ public class Grammar {
         name = n;
     }
 
+
+    public List<MatchInfo> getMatchingExpansions(Expansion e, String[] words, int wordPosition) {
+        List<MatchInfo> matchList = new ArrayList<>();
+        if (e instanceof Token) {
+            Token t = (Token) e;
+            if (t.getText().equals(words[wordPosition])) {
+                String matchedPart = words[wordPosition];
+                matchList.add(new MatchInfo(t, words[wordPosition]));
+            }
+            else {
+                // No match
+            }
+        }
+        else if (e instanceof RuleReference) {
+            RuleReference ref = (RuleReference) e;
+            try {
+                Rule rule = this.getRule(ref.getRuleName()); // Try to get the rule
+                List<MatchInfo> m1 = (this.getMatchingExpansions(rule.getChildExpansion(), words, wordPosition));
+                if (m1.size() != 0) {
+                    matchList.add(new MatchInfo(e, "")); // Need to mark that the rule was matched!
+                    matchList.addAll(m1);
+                }
+            }
+            catch (RuntimeException exception) {
+                System.out.println("coulnd find rule: " +ref.getRuleName());
+                System.out.println(this.compileGrammar());
+                // Rule couldnt be found
+            }
+        }
+        else if (e instanceof OptionalGrouping) {
+            OptionalGrouping og = (OptionalGrouping) e;
+            List<MatchInfo> m1 = this.getMatchingExpansions(og.getChildExpansion(), words, wordPosition);
+            if (m1.size() == 0) {
+                // Optional, so it can match. Used for sequences
+               // matchList.add(new MatchInfo(e, ""));
+            }
+            else {
+                //Matches
+                matchList.add(new MatchInfo(e, ""));
+                matchList.addAll(this.getMatchingExpansions(og.getChildExpansion(), words, wordPosition));
+            }
+        }
+        else if (e instanceof RequiredGrouping) {
+            RequiredGrouping rg = (RequiredGrouping) e;
+            List<MatchInfo> m1 = (this.getMatchingExpansions(rg.getChildExpansion(), words, wordPosition));
+
+            if (m1.size() != 0) {
+                matchList.add(new MatchInfo(e, ""));
+                matchList.addAll(m1);
+            }
+        }
+        else if (e instanceof Tag) {
+            Tag t = (Tag) e;
+            List<MatchInfo> m1 = this.getMatchingExpansions(t.getChildExpansion(), words, wordPosition);
+            if (m1.size() != 0) {
+                matchList.add(new MatchInfo(e,""));
+                matchList.addAll(m1); // Found a match! Add it to the list
+            }
+        }
+        else if (e instanceof AlternativeSet) {
+            AlternativeSet as = (AlternativeSet) e;
+            for (Expansion x : as.getChildExpansions()) {
+                List<MatchInfo> m1 = this.getMatchingExpansions(x, words, wordPosition);
+
+                if ((x instanceof KleeneStar || x instanceof OptionalGrouping) && m1.size() == 0) { // Stupid OptionalGrouping
+                    continue;
+                }
+
+                if (m1.size() != 0) {
+                    matchList.add(new MatchInfo(e,""));
+                    matchList.addAll(m1); // Found a match! Add it to the list
+                    break;
+                }
+            }
+        }
+        else if (e instanceof Sequence) {
+            Sequence seq = (Sequence) e;
+            List<MatchInfo> localMatchList = new ArrayList<>();
+            int matchedCount = 0;
+            for (Object o : seq) {
+                Expansion x = (Expansion) o;
+                List<MatchInfo> m1 = this.getMatchingExpansions(x, words, wordPosition);
+                if (m1.size() == 0 && (x instanceof KleeneStar || x instanceof OptionalGrouping)) {
+                    matchedCount++; // Still counts a match
+                    continue;
+                }
+
+                if (m1.size() != 0) {
+                    matchedCount++;
+                    for (MatchInfo localMatch : m1) {
+                        if(!localMatch.getMatchingStringSection().equals("")) {
+                            wordPosition += localMatch.getMatchingStringSection().split(" ").length;
+                        }
+                    }
+                    localMatchList.addAll(m1); // Found a match! Add it to the list
+                }
+                else { // Doesn't match! Sequence aborted.
+                    localMatchList.clear();
+                    break;
+                }
+
+                if (wordPosition > words.length - 1) { // Sequence is longer than provided words! Abort!
+                    break;
+                }
+            }
+
+            if (matchedCount != seq.size()) { // Not all of the required matches were met!
+                localMatchList.clear();
+            }
+
+            if (localMatchList.size() != 0) {
+                matchList.add(new MatchInfo(e, ""));
+                matchList.addAll(localMatchList);
+            }
+        }
+        else if (e instanceof KleeneStar) {
+            KleeneStar ks = (KleeneStar) e;
+            boolean done = false;
+            List<MatchInfo> m1;
+            matchList.add(new MatchInfo(e, ""));
+            while(!done) {
+                if (wordPosition > words.length - 1) {
+                    break;
+                }
+                m1 = this.getMatchingExpansions(ks.getChildExpansion(), words, wordPosition);
+                if (m1.size() == 0) {
+                    // No matches
+                    done = true;
+                } else {
+                    //Matches
+                    for (MatchInfo mi2 : m1) {
+                        if(!mi2.getMatchingStringSection().equals("")) {
+                            wordPosition += mi2.getMatchingStringSection().split(" ").length;
+                        }
+                    }
+                    matchList.addAll(m1);
+                    matchList.add(new MatchInfo(e, ""));
+                }
+            }
+        }
+        else if (e instanceof PlusOperator) {
+            PlusOperator po = (PlusOperator) e;
+            boolean done = false;
+            List<MatchInfo> m1;
+            while(!done) {
+                if (wordPosition > words.length-1) {
+                    break;
+                }
+                m1 = this.getMatchingExpansions(po.getChildExpansion(), words, wordPosition);
+                if (m1.size() == 0) {
+                    // No matches
+                    done = true;
+                } else {
+                    //Matches
+                    matchList.add(new MatchInfo(e, ""));
+                    for (MatchInfo mi2 : m1) {
+                        if(!mi2.getMatchingStringSection().equals("")) {
+                            wordPosition += mi2.getMatchingStringSection().split(" ").length;
+                        }
+                    }
+                    matchList.addAll(m1);
+                }
+            }
+        }
+
+        return matchList;
+    }
+
+    public boolean matchesRule(String ruleName, String test) {
+        try {
+            Rule rule = this.getRule(ruleName); // Try to get the rule
+            return this.matchesRule(rule, test);
+        }
+        catch (RuntimeException exception) {
+            return false;
+        }
+    }
+
+    public boolean matchesRule(Rule rule, String test) {
+        String[] words = test.split(" ");
+        List<MatchInfo> m1 = this.getMatchingExpansions(rule.getChildExpansion(), words, 0);
+        int matchCount = 0;
+        for (MatchInfo mi2 : m1) {
+            if (!mi2.getMatchingStringSection().equals("")) {
+                matchCount++;
+            }
+        }
+        return matchCount == words.length; // Must match all the words!
+    }
+
+    public Rule getMatchingRule(String test) {
+        for (Rule r : rules) {
+            if (matchesRule(r,test)) {
+                return r;
+            }
+        }
+        return null;
+    }
+
     private static Expansion parseAlternativeSets(List<Expansion> exp) {
 
         //Remove all leftover UnparsedSections
@@ -577,11 +776,9 @@ public class Grammar {
         for (Rule r : rules) {
             if (r.name.equals(ruleName)) {
                 return r;
-            } else {
-                throw new RuntimeException("Could not find rule by name: " + ruleName);
             }
         }
-        return null;
+        throw new RuntimeException("Could not find rule by name: " + ruleName);
     }
 
     public void addImport(Import i) {

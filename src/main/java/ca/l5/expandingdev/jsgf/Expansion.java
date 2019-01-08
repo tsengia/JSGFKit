@@ -6,4 +6,6 @@ public interface Expansion {
     boolean hasChildren();
 
     boolean hasUnparsedChildren();
+
+   // MatchInfo matchesString(Grammar g, String s);
 }

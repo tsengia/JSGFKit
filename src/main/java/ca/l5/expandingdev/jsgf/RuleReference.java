@@ -1,10 +1,18 @@
 package ca.l5.expandingdev.jsgf;
 
 public class RuleReference implements Expansion {
-    private String name;
+    private String ruleName;
+
+    public String getRuleName() {
+        return ruleName;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
 
     public RuleReference(String rr) {
-        name = rr;
+        ruleName = rr;
     }
 
     @Override
@@ -18,7 +26,7 @@ public class RuleReference implements Expansion {
     }
 
     public String getString() {
-        String s = "<" + name + ">";
+        String s = "<" + ruleName + ">";
         return s;
     }
 }
