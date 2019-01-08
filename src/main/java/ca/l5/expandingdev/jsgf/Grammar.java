@@ -50,8 +50,6 @@ public class Grammar {
                 }
             }
             catch (RuntimeException exception) {
-                System.out.println("coulnd find rule: " +ref.getRuleName());
-                System.out.println(this.compileGrammar());
                 // Rule couldnt be found
             }
         }
