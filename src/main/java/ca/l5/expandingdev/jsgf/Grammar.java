@@ -2,8 +2,10 @@ package ca.l5.expandingdev.jsgf;
 
 import java.rmi.UnexpectedException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class Grammar {
     public static final String specialCharacterRegex = "[;=<>*+\\[\\]()|{} ]";
@@ -31,15 +33,18 @@ public class Grammar {
         List<MatchInfo> matchList = new ArrayList<>();
         if (e instanceof Token) {
             Token t = (Token) e;
-            if (t.getText().equals(words[wordPosition])) {
-                String matchedPart = words[wordPosition];
-                matchList.add(new MatchInfo(t, words[wordPosition]));
-            }
-            else {
+            String word = words[wordPosition];
+            if (t.getText().startsWith("/") && t.getText().endsWith("/")) {
+                Matcher matcher = t.getPattern().matcher(word);
+                if (matcher.matches()) {
+                    matchList.add(new MatchInfo(t, word));
+                }
+            } else if (t.getText().equals(word)) {
+                matchList.add(new MatchInfo(t, word));
+            } else {
                 // No match
             }
-        }
-        else if (e instanceof RuleReference) {
+        } else if (e instanceof RuleReference) {
             RuleReference ref = (RuleReference) e;
             try {
                 Rule rule = this.getRule(ref.getRuleName()); // Try to get the rule
@@ -52,21 +57,18 @@ public class Grammar {
             catch (RuntimeException exception) {
                 // Rule couldnt be found
             }
-        }
-        else if (e instanceof OptionalGrouping) {
+        } else if (e instanceof OptionalGrouping) {
             OptionalGrouping og = (OptionalGrouping) e;
             List<MatchInfo> m1 = this.getMatchingExpansions(og.getChildExpansion(), words, wordPosition);
             if (m1.size() == 0) {
                 // Optional, so it can match. Used for sequences
-               // matchList.add(new MatchInfo(e, ""));
-            }
-            else {
+                // matchList.add(new MatchInfo(e, ""));
+            } else {
                 //Matches
                 matchList.add(new MatchInfo(e, ""));
                 matchList.addAll(this.getMatchingExpansions(og.getChildExpansion(), words, wordPosition));
             }
-        }
-        else if (e instanceof RequiredGrouping) {
+        } else if (e instanceof RequiredGrouping) {
             RequiredGrouping rg = (RequiredGrouping) e;
             List<MatchInfo> m1 = (this.getMatchingExpansions(rg.getChildExpansion(), words, wordPosition));
 
@@ -74,16 +76,14 @@ public class Grammar {
                 matchList.add(new MatchInfo(e, ""));
                 matchList.addAll(m1);
             }
-        }
-        else if (e instanceof Tag) {
+        } else if (e instanceof Tag) {
             Tag t = (Tag) e;
             List<MatchInfo> m1 = this.getMatchingExpansions(t.getChildExpansion(), words, wordPosition);
             if (m1.size() != 0) {
                 matchList.add(new MatchInfo(e,""));
                 matchList.addAll(m1); // Found a match! Add it to the list
             }
-        }
-        else if (e instanceof AlternativeSet) {
+        } else if (e instanceof AlternativeSet) {
             AlternativeSet as = (AlternativeSet) e;
             for (Expansion x : as.getChildExpansions()) {
                 List<MatchInfo> m1 = this.getMatchingExpansions(x, words, wordPosition);
@@ -98,8 +98,7 @@ public class Grammar {
                     break;
                 }
             }
-        }
-        else if (e instanceof Sequence) {
+        } else if (e instanceof Sequence) {
             Sequence seq = (Sequence) e;
             List<MatchInfo> localMatchList = new ArrayList<>();
             int matchedCount = 0;
@@ -138,8 +137,7 @@ public class Grammar {
                 matchList.add(new MatchInfo(e, ""));
                 matchList.addAll(localMatchList);
             }
-        }
-        else if (e instanceof KleeneStar) {
+        } else if (e instanceof KleeneStar) {
             KleeneStar ks = (KleeneStar) e;
             boolean done = false;
             List<MatchInfo> m1;
@@ -163,8 +161,7 @@ public class Grammar {
                     matchList.add(new MatchInfo(e, ""));
                 }
             }
-        }
-        else if (e instanceof PlusOperator) {
+        } else if (e instanceof PlusOperator) {
             PlusOperator po = (PlusOperator) e;
             boolean done = false;
             List<MatchInfo> m1;
@@ -581,6 +578,12 @@ public class Grammar {
     }
 
     public static List<Expansion> parseTokensFromString(String part) {
+        part = part.trim();
+        // If input string is a regex, we can create Token immediately
+        if (part.startsWith("/") && part.endsWith("/")) {
+            return Collections.singletonList(new Token(part));
+        }
+
         List<Expansion> exp = new ArrayList<Expansion>();
 
         //Parse Tokens because they have the highest precedence
@@ -700,7 +703,6 @@ public class Grammar {
     }
 
     public static Expansion parseExpansionsFromString(String part) throws UnexpectedException {
-        String toParse = part;
         List<Expansion> exp = parseTokensFromString(part);
         exp = parseRuleReferences(exp);
         exp = parseRequiredGroupings(exp);
@@ -713,7 +715,7 @@ public class Grammar {
 
     public static Grammar parseGrammarFromString(String s) {
         Grammar grammar = new Grammar();
-        String noComments = s.replaceAll("(\\#+.*[\\n|\\r|\\v])|([//]+.*[\\n|\\r|\\v])", ""); // Remove all commented out lines
+        String noComments = s.replaceAll("(\\#+.*[\\n|\\r|\\v])|(//.*[\\n|\\r|\\v])", ""); // Remove all commented out lines
         String[] statements = noComments.split("(?<!\"\');(?!\"\')"); // Split into statements with each semicolon, but ignore semicolons within quotes!
 
         try {
