@@ -34,13 +34,13 @@ public class Grammar {
         if (e instanceof Token) {
             Token t = (Token) e;
             String word = words[wordPosition];
-            if (t.getText().startsWith("/") && t.getText().endsWith("/")) {
+            if (t.getText().equals(word)) {
+                matchList.add(new MatchInfo(t, word));
+            } else if (t.getText().startsWith("/") && t.getText().endsWith("/")) {
                 Matcher matcher = t.getPattern().matcher(word);
                 if (matcher.matches()) {
                     matchList.add(new MatchInfo(t, word));
                 }
-            } else if (t.getText().equals(word)) {
-                matchList.add(new MatchInfo(t, word));
             } else {
                 // No match
             }
