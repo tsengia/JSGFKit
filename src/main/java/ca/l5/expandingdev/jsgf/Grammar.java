@@ -26,7 +26,6 @@ public class Grammar {
         name = n;
     }
 
-
     public List<MatchInfo> getMatchingExpansions(Expansion e, String[] words, int wordPosition) {
         List<MatchInfo> matchList = new ArrayList<>();
         if (e instanceof Token) {
