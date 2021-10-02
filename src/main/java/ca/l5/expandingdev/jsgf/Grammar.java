@@ -737,8 +737,12 @@ public class Grammar {
                     ruleName = ruleName.trim();
                     Expansion exp = Grammar.parseExpansionsFromString(parts[1]);
                     grammar.addRule(new Rule(ruleName, false, exp));
+                } else if (statement.startsWith("import <")) {
+                    statement = statement.replaceFirst("import ", "");
+                    statement = statement.replaceAll("<|>", "");
+                    String importName = statement.trim();
+                    grammar.addImport(importName);
                 }
-
             }
         } catch (Exception e) {
             e.printStackTrace();

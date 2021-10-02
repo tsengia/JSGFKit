@@ -1,4 +1,5 @@
 import ca.l5.expandingdev.jsgf.*;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.rmi.UnexpectedException;
@@ -24,6 +25,43 @@ public class GrammarCompileTest {
 		System.out.println("Test String:" + testString);
 		if (g.getMatchingRule(testString) != null) {
 			System.out.println(g.getMatchingRule(testString).name);
+		}
+	}
+
+	@Test
+	public void testWithImport() throws UnexpectedException {
+		String grammarText = "grammar ca.l5.expandingdev.test;" +
+				"import <ca.l5.expandingdev.common.*>;" +
+				"public <weather> = (What is the weather in <city>);" +
+				"<weather2> = (What is the weather in <other_city>);";
+		Grammar grammar = Grammar.parseGrammarFromString(grammarText);
+
+		String grammarText2 = "grammar ca.l5.expandingdev.common;" +
+				"public <city> = (Beijing|<other_city>);" +
+				"<other_city> = (Shanghai|Hangzhou);";
+		Grammar grammar2 = Grammar.parseGrammarFromString(grammarText2);
+
+		GrammarGroup grammarGroup = new GrammarGroup();
+		grammarGroup.addGrammar(grammar);
+		grammarGroup.addGrammar(grammar2);
+
+		System.out.println(grammar.toString());
+		System.out.println(grammar2.toString());
+
+		{
+			String testString = "What is the weather in Beijing";
+			System.out.println("Test String:" + testString);
+			Assert.assertTrue(grammarGroup.matchesRule(grammar, "weather", testString));
+			Assert.assertFalse(grammarGroup.matchesRule(grammar, "weather2", testString));
+			Assert.assertFalse(grammarGroup.matchesRule(grammar, "weather_invalid", testString));
+		}
+
+		{
+			String testString = "What is the weather in Shanghai";
+			System.out.println("Test String:" + testString);
+			Assert.assertTrue(grammarGroup.matchesRule(grammar, "weather", testString));
+			Assert.assertFalse(grammarGroup.matchesRule(grammar, "weather2", testString));
+			Assert.assertFalse(grammarGroup.matchesRule(grammar, "weather_invalid", testString));
 		}
 	}
 }
