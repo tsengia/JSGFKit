@@ -10,4 +10,8 @@ public class Import {
     public String getString() {
         return "import <" + importName + ">;";
     }
+
+    public String getImportName() {
+        return importName;
+    }
 }
